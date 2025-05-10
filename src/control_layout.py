@@ -17,6 +17,7 @@ class ControlLayout(QVBoxLayout):
         super().__init__()
 
         self.controller: Controller = Controller()
+        self.controller.pause_simulation_signal.connect(self.pause_simulation)
 
         self.create_ui()
 
@@ -37,10 +38,14 @@ class ControlLayout(QVBoxLayout):
         self.rules_combo_box = QComboBox()
         self.rules_combo_box.setToolTip("Select rules for the simulation")
         self.rules_combo_box.setCursor(QCursor(Qt.PointingHandCursor))
-        self.rules_combo_box.addItem("Conway rules")
-        self.rules_combo_box.addItem("HighLife rules")
-        self.rules_combo_box.addItem("Seeds rules")
-        self.rules_combo_box.addItem("Day and Night rules")
+        self.rules_combo_box.addItem("Conway (B3/S23) rules")
+        self.rules_combo_box.addItem("HighLife (B36/S23) rules")
+        self.rules_combo_box.addItem("Day and Night (B3678/S34678) rules")
+        self.rules_combo_box.addItem("Seeds (B2/S) rules")
+        self.rules_combo_box.addItem("Life w/o death (B3/S012345678) rules")
+        self.rules_combo_box.addItem("Diamoeba (B35678/S5678) rules")
+        self.rules_combo_box.addItem("Replicator (B1357/S1357) rules")
+        self.rules_combo_box.addItem("Anneal (B4678/S35678) rules")
         rules_layout.addWidget(self.rules_combo_box)
 
         game_speed_layout = QVBoxLayout()
@@ -54,10 +59,8 @@ class ControlLayout(QVBoxLayout):
         self.game_speed_slider.setToolTip("Set game speed")
         self.game_speed_slider.setRange(1, 10)
         self.game_speed_slider.setValue(1)
-        self.game_speed_slider.setSingleStep(1)
         self.game_speed_slider.setPageStep(1)
         self.game_speed_slider.setTickPosition(QSlider.TicksBelow)
-        self.game_speed_slider.setTickInterval(1)
         self.game_speed_slider.setCursor(QCursor(Qt.PointingHandCursor))
         game_speed_layout.addWidget(self.game_speed_slider)
 
@@ -82,14 +85,14 @@ class ControlLayout(QVBoxLayout):
 
         self.pause_btn = QPushButton("Pause")
         self.pause_btn.setToolTip("Pause simulation")
-        self.pause_btn.clicked.connect(self.on_pause_btn_clicked)
+        self.pause_btn.clicked.connect(self.controller.pause_simulation)
         self.pause_btn.setEnabled(False)
         self.pause_btn.setCursor(QCursor(Qt.PointingHandCursor))
         truc.addWidget(self.pause_btn)
 
         self.start_btn = QPushButton("Start")
         self.start_btn.setToolTip("Start simulation")
-        self.start_btn.clicked.connect(self.on_start_btn_clicked)
+        self.start_btn.clicked.connect(self.start_simulation)
         self.start_btn.setCursor(QCursor(Qt.PointingHandCursor))
         truc.addWidget(self.start_btn)
 
@@ -107,7 +110,7 @@ class ControlLayout(QVBoxLayout):
         close_btn.setCursor(QCursor(Qt.PointingHandCursor))
         self.addWidget(close_btn)
 
-    def on_pause_btn_clicked(self):
+    def pause_simulation(self):
         self.pause_btn.setEnabled(False)
         self.rules_combo_box.setEnabled(True)
         self.game_speed_slider.setEnabled(True)
@@ -115,9 +118,7 @@ class ControlLayout(QVBoxLayout):
         self.start_btn.setEnabled(True)
         self.clear_btn.setEnabled(True)
 
-        self.controller.pause_simulation()
-
-    def on_start_btn_clicked(self):
+    def start_simulation(self):
         self.rules_combo_box.setEnabled(False)
         self.game_speed_slider.setEnabled(False)
         self.iterations_line_edit.setEnabled(False)

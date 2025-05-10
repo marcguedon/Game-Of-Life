@@ -27,7 +27,6 @@ class GraphicsView(QGraphicsView):
         self._pan_start = QPoint()
 
     def update_scene(self, new_scene: GridGraphicsScene):
-        self.scene.clear()
         self.scene = new_scene
         self.setScene(self.scene)
 

@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import (
     QGraphicsRectItem,
 )
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QBrush, QMouseEvent
+from PyQt5.QtGui import QBrush
 
 
 class Cell(QGraphicsRectItem):
@@ -12,7 +12,6 @@ class Cell(QGraphicsRectItem):
         self.setPos(x * size, y * size)
         self.setBrush(QBrush(Qt.white))
         self.setPen(Qt.black)
-        self.setAcceptedMouseButtons(Qt.LeftButton)
 
         self.alive: bool = False
 
@@ -22,12 +21,3 @@ class Cell(QGraphicsRectItem):
 
     def is_alive(self) -> bool:
         return self.alive
-
-    def mousePressEvent(self, event: QMouseEvent):
-        self.set_alive(not self.alive)
-
-    def disable_mouse_events(self):
-        self.setAcceptedMouseButtons(Qt.NoButton)
-
-    def enable_mouse_events(self):
-        self.setAcceptedMouseButtons(Qt.LeftButton)
