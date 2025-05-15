@@ -1,0 +1,11 @@
+{
+    "name": "Snake",
+    "pattern": {
+        "width": 4,
+        "height": 2,
+        "cells": [
+            [1, 1, 0, 1],
+            [1, 0, 1, 1]
+        ]
+    }
+}
