@@ -6,10 +6,12 @@ from PyQt5.QtWidgets import (
     QLabel,
     QSlider,
     QLineEdit,
+    QFrame,
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor, QIntValidator
 from controller import Controller
+from patterns_tab_widget import PatternsTabWidget
 
 
 class ControlLayout(QVBoxLayout):
@@ -22,7 +24,7 @@ class ControlLayout(QVBoxLayout):
         self.create_ui()
 
     def create_ui(self):
-        self.setContentsMargins(0, 75, 0, 100)
+        self.setContentsMargins(20, 75, 20, 100)
 
         sub_layout = QVBoxLayout()
         sub_layout.setSpacing(30)
@@ -32,8 +34,32 @@ class ControlLayout(QVBoxLayout):
         rules_layout.setSpacing(5)
         sub_layout.addLayout(rules_layout)
 
-        rules_label = QLabel("Rules:")
-        rules_layout.addWidget(rules_label)
+        rules_sub_layout = QHBoxLayout()
+        rules_sub_layout.setContentsMargins(0, 0, 2, 0)
+        rules_layout.addLayout(rules_sub_layout)
+
+        rules_label = QLabel("Select rules")
+        rules_sub_layout.addWidget(rules_label)
+
+        rules_sub_layout.addStretch()
+
+        help_btn = QPushButton("?")
+        help_btn.setFixedSize(20, 20)
+        help_btn.setStyleSheet(
+            """
+                QPushButton {
+                    background-color: transparent;
+                    border: none;
+                }
+                QPushButton:hover {
+                    color: blue;
+                }
+            """
+        )
+        help_btn.setToolTip("Help")
+        help_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        help_btn.clicked.connect(self.controller.show_help)
+        rules_sub_layout.addWidget(help_btn)
 
         self.rules_combo_box = QComboBox()
         self.rules_combo_box.setToolTip("Select rules for the simulation")
@@ -52,7 +78,7 @@ class ControlLayout(QVBoxLayout):
         game_speed_layout.setSpacing(5)
         sub_layout.addLayout(game_speed_layout)
 
-        game_speed_label = QLabel("Game Speed:")
+        game_speed_label = QLabel("Game Speed")
         game_speed_layout.addWidget(game_speed_label)
 
         self.game_speed_slider = QSlider(Qt.Horizontal)
@@ -68,7 +94,7 @@ class ControlLayout(QVBoxLayout):
         iterations_layout.setSpacing(5)
         sub_layout.addLayout(iterations_layout)
 
-        iterations_label = QLabel("Iterations:")
+        iterations_label = QLabel("Iterations")
         iterations_layout.addWidget(iterations_label)
 
         self.iterations_line_edit = QLineEdit()
@@ -79,30 +105,44 @@ class ControlLayout(QVBoxLayout):
         self.iterations_line_edit.setCursor(QCursor(Qt.PointingHandCursor))
         iterations_layout.addWidget(self.iterations_line_edit)
 
-        truc = QHBoxLayout()
-        truc.setSpacing(10)
-        sub_layout.addLayout(truc)
+        start_pause_layout = QHBoxLayout()
+        start_pause_layout.setSpacing(10)
+        sub_layout.addLayout(start_pause_layout)
 
         self.pause_btn = QPushButton("Pause")
         self.pause_btn.setToolTip("Pause simulation")
         self.pause_btn.clicked.connect(self.controller.pause_simulation)
         self.pause_btn.setEnabled(False)
         self.pause_btn.setCursor(QCursor(Qt.PointingHandCursor))
-        truc.addWidget(self.pause_btn)
+        start_pause_layout.addWidget(self.pause_btn)
 
         self.start_btn = QPushButton("Start")
         self.start_btn.setToolTip("Start simulation")
         self.start_btn.clicked.connect(self.start_simulation)
         self.start_btn.setCursor(QCursor(Qt.PointingHandCursor))
-        truc.addWidget(self.start_btn)
+        start_pause_layout.addWidget(self.start_btn)
 
-        self.clear_btn = QPushButton("Clear")
+        self.clear_btn = QPushButton("Clear simulation")
         self.clear_btn.setToolTip("Clear simulation")
         self.clear_btn.clicked.connect(self.controller.clear_simulation)
         self.clear_btn.setCursor(QCursor(Qt.PointingHandCursor))
         sub_layout.addWidget(self.clear_btn)
 
-        self.addStretch()
+        patterns_tab_widget = PatternsTabWidget()
+        sub_layout.addWidget(patterns_tab_widget)
+
+        self.show_hide_grid_btn = QPushButton("Show/hide grid")
+        self.show_hide_grid_btn.setToolTip("Show/hide grid")
+        self.show_hide_grid_btn.clicked.connect(self.controller.show_hide_grid)
+        self.show_hide_grid_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        sub_layout.addWidget(self.show_hide_grid_btn)
+
+        self.stretch(1)
+
+        separator = QFrame()
+        separator.setFrameShape(QFrame.HLine)
+        separator.setFrameShadow(QFrame.Sunken)
+        self.addWidget(separator)
 
         close_btn = QPushButton("Quit")
         close_btn.setToolTip("Quit application")

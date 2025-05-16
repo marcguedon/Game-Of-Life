@@ -30,5 +30,9 @@ class MainWindow(QMainWindow):
         self.graphics_view = GraphicsView()
         main_layout.addWidget(self.graphics_view, stretch=1)
 
-        self.control_layout = ControlLayout()
-        main_layout.addLayout(self.control_layout)
+        control_widget = QWidget()
+        control_widget.setMaximumWidth(267)
+        main_layout.addWidget(control_widget)
+
+        control_layout = ControlLayout()
+        control_widget.setLayout(control_layout)

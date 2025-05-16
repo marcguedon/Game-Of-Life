@@ -10,9 +10,10 @@ class GraphicsView(QGraphicsView):
         super().__init__()
 
         self.controller: Controller = Controller()
-        self.controller.update_scene_signal.connect(self.update_scene)
 
-        self.scene: GridGraphicsScene = self.controller.grid_graphics_scene
+        self.scene: GridGraphicsScene = GridGraphicsScene(
+            self.controller.NB_ROWS, self.controller.NB_COLS
+        )
         self.setScene(self.scene)
 
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
@@ -25,10 +26,6 @@ class GraphicsView(QGraphicsView):
 
         self._panning: bool = False
         self._pan_start = QPoint()
-
-    def update_scene(self, new_scene: GridGraphicsScene):
-        self.scene = new_scene
-        self.setScene(self.scene)
 
     def wheelEvent(self, event: QMouseEvent):
         if event.angleDelta().y() > 0 and self.current_scale < self.max_scale:
