@@ -4,10 +4,10 @@
         "width": 4,
         "height": 4,
         "cells": [
-            [1, 1, 0, 0],
-            [0, 1, 0, 0],
-            [0, 1, 0, 1],
-            [0, 0, 1, 1]
+            [true, true, false, false],
+            [false, true, false, false],
+            [false, true, false, true],
+            [false, false, true, true]
         ]
     }
 }
