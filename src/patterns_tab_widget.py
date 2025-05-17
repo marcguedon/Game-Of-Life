@@ -1,11 +1,12 @@
 import os
-import json
 from PyQt5.QtWidgets import QTabWidget, QPushButton
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QCursor
 from controller import Controller
 from patterns_type_tab import PatternsTypeTab
 from pattern_button import PatternButton
 from pattern import Pattern
-from utils import from_pattern_to_image
+from utils import load_pattern_from_file
 
 
 class PatternsTabWidget(QTabWidget):
@@ -19,6 +20,7 @@ class PatternsTabWidget(QTabWidget):
         self.controller.pause_simulation_signal.connect(
             lambda enabled=True: self.toggle_buttons(enabled)
         )
+        self.controller.add_custom_pattern_signal.connect(self.add_custom_pattern)
 
         patterns_dir = os.path.join(
             os.path.dirname(os.path.dirname(__file__)), "patterns"
@@ -27,20 +29,27 @@ class PatternsTabWidget(QTabWidget):
         patterns_types = [patterns_type for patterns_type in os.listdir(patterns_dir)]
 
         for patterns_type in patterns_types:
-            patterns_type_tab = PatternsTypeTab()
+            patterns_type_tab: PatternsTypeTab = PatternsTypeTab()
+            patterns_type_tab.setObjectName(patterns_type)
             self.addTab(patterns_type_tab, patterns_type.capitalize())
 
             if patterns_type == "customs":
-                add_pattern_button = QPushButton("Add")
-                add_pattern_button.clicked.connect(self.controller.add_custom_pattern)
+                add_pattern_button: QPushButton = QPushButton("Add")
+                add_pattern_button.setToolTip("Add a custom pattern")
+                add_pattern_button.setCursor(QCursor(Qt.PointingHandCursor))
+                add_pattern_button.clicked.connect(
+                    self.controller.open_add_custom_pattern_dialog
+                )
                 add_pattern_button.setFixedSize(55, 55)
                 patterns_type_tab.add_pattern_button(add_pattern_button)
 
             for pattern_name in os.listdir(os.path.join(patterns_dir, patterns_type)):
-                pattern_file = os.path.join(patterns_dir, patterns_type, pattern_name)
-                pattern = self.get_pattern_object_from_pattern_path(pattern_file)
+                pattern_file: str = os.path.join(
+                    patterns_dir, patterns_type, pattern_name
+                )
+                pattern: Pattern = load_pattern_from_file(pattern_file)
 
-                pattern_button = PatternButton(pattern)
+                pattern_button: PatternButton = PatternButton(pattern)
                 patterns_type_tab.add_pattern_button(pattern_button)
 
         self.setTabPosition(QTabWidget.West)
@@ -52,19 +61,11 @@ class PatternsTabWidget(QTabWidget):
             if item is not None:
                 item.toggle_buttons(enabled)
 
-    @staticmethod
-    def get_pattern_object_from_pattern_path(pattern_path: str) -> Pattern:
-        with open(pattern_path, encoding="UTF-8") as file:
-            pattern_data = json.load(file)
+    def add_custom_pattern(self, pattern: Pattern):
+        for i in range(self.count()):
+            tab = self.widget(i)
 
-        pattern_name = pattern_data["name"]
-        pattern_cells = pattern_data["pattern"]["cells"]
-        pattern_image = from_pattern_to_image(pattern_cells)
-
-        pattern = Pattern(
-            name=pattern_name,
-            image=pattern_image,
-            matrix=pattern_cells,
-        )
-
-        return pattern
+            if tab.objectName().lower() == "customs":
+                pattern_button = PatternButton(pattern)
+                tab.add_pattern_button(pattern_button)
+                break

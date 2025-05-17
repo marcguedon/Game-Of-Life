@@ -23,6 +23,7 @@ class ControlLayout(QVBoxLayout):
 
         self.create_ui()
 
+    # TODO: Improve the UI
     def create_ui(self):
         self.setContentsMargins(20, 75, 20, 100)
 
@@ -43,23 +44,23 @@ class ControlLayout(QVBoxLayout):
 
         rules_sub_layout.addStretch()
 
-        help_btn = QPushButton("?")
-        help_btn.setFixedSize(20, 20)
-        help_btn.setStyleSheet(
+        game_rules_help_btn = QPushButton("?")
+        game_rules_help_btn.setFixedSize(20, 20)
+        game_rules_help_btn.setStyleSheet(
             """
                 QPushButton {
                     background-color: transparent;
                     border: none;
                 }
                 QPushButton:hover {
-                    color: blue;
+                    text-decoration: underline;
                 }
             """
         )
-        help_btn.setToolTip("Help")
-        help_btn.setCursor(QCursor(Qt.PointingHandCursor))
-        help_btn.clicked.connect(self.controller.show_help)
-        rules_sub_layout.addWidget(help_btn)
+        game_rules_help_btn.setToolTip("Help")
+        game_rules_help_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        game_rules_help_btn.clicked.connect(self.controller.show_games_rules_help)
+        rules_sub_layout.addWidget(game_rules_help_btn)
 
         self.rules_combo_box = QComboBox()
         self.rules_combo_box.setToolTip("Select rules for the simulation")
@@ -128,8 +129,40 @@ class ControlLayout(QVBoxLayout):
         self.clear_btn.setCursor(QCursor(Qt.PointingHandCursor))
         sub_layout.addWidget(self.clear_btn)
 
+        patterns_layout = QVBoxLayout()
+        patterns_layout.setSpacing(5)
+        sub_layout.addLayout(patterns_layout)
+
+        patterns_sub_layout = QHBoxLayout()
+        patterns_sub_layout.setContentsMargins(0, 0, 2, 0)
+        patterns_layout.addLayout(patterns_sub_layout)
+
+        patterns_label = QLabel("Patterns")
+        patterns_sub_layout.addWidget(patterns_label)
+
+        patterns_sub_layout.addStretch()
+
+        patterns_help_btn = QPushButton("?")
+        patterns_help_btn.setFixedSize(20, 20)
+        patterns_help_btn.setStyleSheet(
+            """
+                QPushButton {
+                    background-color: transparent;
+                    border: none;
+                }
+                QPushButton:hover {
+                    text-decoration: underline;
+                    
+                }
+            """
+        )
+        patterns_help_btn.setToolTip("Help")
+        patterns_help_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        patterns_help_btn.clicked.connect(self.controller.show_patterns_help)
+        patterns_sub_layout.addWidget(patterns_help_btn)
+
         patterns_tab_widget = PatternsTabWidget()
-        sub_layout.addWidget(patterns_tab_widget)
+        patterns_layout.addWidget(patterns_tab_widget)
 
         self.show_hide_grid_btn = QPushButton("Show/hide grid")
         self.show_hide_grid_btn.setToolTip("Show/hide grid")

@@ -1,5 +1,8 @@
+import os
 import cv2
 import numpy as np
+import json
+from pattern import Pattern
 
 BLACK = 0
 WHITE = 255
@@ -7,7 +10,7 @@ GRAY = 128
 CELL_SIZE = 20
 
 
-def from_pattern_to_image(pattern: list[list[int]]) -> np.ndarray:
+def from_pattern_to_image(pattern: list[list[bool]]) -> np.ndarray:
     nb_rows: int = len(pattern)
     nb_cols: int = len(pattern[0])
     height: int = nb_rows * CELL_SIZE
@@ -34,3 +37,51 @@ def from_pattern_to_image(pattern: list[list[int]]) -> np.ndarray:
         cv2.line(image, (x_coord, 0), (x_coord, height), BLACK, 1)
 
     return image
+
+
+def save_pattern_to_file(pattern: Pattern):
+    name: str = pattern.name.lower().replace(" ", "_")
+    width: int = len(pattern.matrix[0])
+    height: int = len(pattern.matrix)
+    cells = pattern.matrix
+
+    pattern_data = {
+        "name": name,
+        "pattern": {
+            "width": width,
+            "height": height,
+            "cells": cells,
+        },
+    }
+
+    json_data = json.dumps(pattern_data, indent=4)
+    filename: str = f"{name}.json"
+
+    custom_patterns_dir = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), "patterns", "customs"
+    )
+
+    # TODO: Manage already existing files
+
+    with open(
+        os.path.join(custom_patterns_dir, filename), "w", encoding="UTF-8"
+    ) as file:
+        file.write(json_data)
+
+
+def load_pattern_from_file(filename: str) -> Pattern:
+    with open(filename, encoding="UTF-8") as file:
+        pattern_data = json.load(file)
+
+    pattern_name: str = pattern_data["name"]
+    pattern_cells: list[list[bool]] = pattern_data["pattern"]["cells"]
+
+    pattern_image: np.ndarray = from_pattern_to_image(pattern_cells)
+
+    pattern: Pattern = Pattern(
+        name=pattern_name,
+        image=pattern_image,
+        matrix=pattern_cells,
+    )
+
+    return pattern

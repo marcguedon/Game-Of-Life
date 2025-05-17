@@ -3,6 +3,7 @@ from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtGui import QMouseEvent
 from controller import Controller
 from grid_graphics_scene import GridGraphicsScene
+from pattern import Pattern
 
 
 class GraphicsView(QGraphicsView):
@@ -10,6 +11,10 @@ class GraphicsView(QGraphicsView):
         super().__init__()
 
         self.controller: Controller = Controller()
+        self.controller.preview_pattern_signal.connect(self.enable_preview_pattern)
+        self.controller.stop_preview_pattern_signal.connect(
+            self.disable_preview_pattern
+        )
 
         self.scene: GridGraphicsScene = GridGraphicsScene(
             self.controller.NB_ROWS, self.controller.NB_COLS
@@ -25,7 +30,9 @@ class GraphicsView(QGraphicsView):
         self.max_scale: float = 5.0
 
         self._panning: bool = False
-        self._pan_start = QPoint()
+        self._pan_start: QPoint = QPoint()
+
+        self._preview_enabled: bool = False
 
     def wheelEvent(self, event: QMouseEvent):
         if event.angleDelta().y() > 0 and self.current_scale < self.max_scale:
@@ -45,6 +52,7 @@ class GraphicsView(QGraphicsView):
         else:
             super().mousePressEvent(event)
 
+    # TODO: Disabling preview pattern placement while dragging
     def mouseMoveEvent(self, event: QMouseEvent):
         if self._panning:
             delta = self._pan_start - event.pos()
@@ -69,3 +77,9 @@ class GraphicsView(QGraphicsView):
 
     def mouseDoubleClickEvent(self, event: QMouseEvent):
         pass
+
+    def enable_preview_pattern(self, pattern: Pattern):
+        self._preview_enabled = True
+
+    def disable_preview_pattern(self):
+        self._preview_enabled = False

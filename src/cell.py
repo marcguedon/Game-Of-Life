@@ -22,5 +22,5 @@ class Cell(QGraphicsRectItem):
     def is_alive(self) -> bool:
         return self.brush().color() == Qt.black
 
-    def set_alive_preview(self, alive: bool):
-        self.setBrush(QBrush(Qt.darkGray if alive else Qt.lightGray))
+    def set_alive_preview(self):
+        self.setBrush(QBrush(Qt.darkGray))

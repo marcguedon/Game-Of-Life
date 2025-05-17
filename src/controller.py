@@ -12,6 +12,7 @@ from game_rules import (
     replicator_rules,
     anneal_rules,
 )
+from utils import save_pattern_to_file
 
 
 class Controller(QObject):
@@ -31,6 +32,10 @@ class Controller(QObject):
     show_hide_grid_signal = pyqtSignal()
 
     preview_pattern_signal = pyqtSignal(Pattern)
+    stop_preview_pattern_signal = pyqtSignal()
+
+    open_add_custom_pattern_dialog_signal = pyqtSignal()
+    add_custom_pattern_signal = pyqtSignal(Pattern)
 
     def __new__(cls):
         if not cls._instance:
@@ -122,13 +127,28 @@ class Controller(QObject):
         self.update_scene_signal.emit(changed_cells)
         self.current_iteration += 1
 
-    def show_help(self):
+    # TODO: Improve the help dialog
+    def show_games_rules_help(self):
         help_dialog = QMessageBox()
-        help_dialog.setWindowTitle("Help")
+        help_dialog.setWindowTitle("Game rules help")
         help_dialog.setText(
             "This is a simulation of Conway's Game of Life and other cellular automata.\n"
             "You can select different rules and adjust the game speed.\n"
             "Click on the grid to toggle cell states."
+        )
+        help_dialog.setIcon(QMessageBox.Information)
+        help_dialog.setStandardButtons(QMessageBox.Ok)
+        help_dialog.setModal(True)
+        help_dialog.exec_()
+
+    # TODO: Improve the help dialog
+    def show_patterns_help(self):
+        help_dialog = QMessageBox()
+        help_dialog.setWindowTitle("Patterns help")
+        help_dialog.setText(
+            "Patterns are predefined configurations of cells that can be placed on the grid.\n"
+            "The ones already available are made to work with the Conway rules.\n"
+            "You can add custom patterns by clicking the 'Add' button in the Customs tab.\n"
         )
         help_dialog.setIcon(QMessageBox.Information)
         help_dialog.setStandardButtons(QMessageBox.Ok)
@@ -141,6 +161,12 @@ class Controller(QObject):
     def preview_pattern(self, pattern: Pattern):
         self.preview_pattern_signal.emit(pattern)
 
-    def add_custom_pattern(self):
-        print("Add custom pattern clicked")
-        pass
+    def stop_preview_pattern(self):
+        self.stop_preview_pattern_signal.emit()
+
+    def open_add_custom_pattern_dialog(self):
+        self.open_add_custom_pattern_dialog_signal.emit()
+
+    def add_custom_pattern(self, pattern: Pattern):
+        save_pattern_to_file(pattern)
+        self.add_custom_pattern_signal.emit(pattern)

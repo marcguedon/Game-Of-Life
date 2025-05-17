@@ -6,6 +6,7 @@ from cell import Cell
 from pattern import Pattern
 
 
+# TODO: Add preview pattern rotation/flipping
 class GridGraphicsScene(QGraphicsScene):
     def __init__(self, nb_rows: int = 146, nb_cols: int = 225, cell_size: int = 20):
         super().__init__()
@@ -32,7 +33,6 @@ class GridGraphicsScene(QGraphicsScene):
         self._preview_pattern: Pattern = None
         self._previewed_cells: set[Cell] = set()
         self._preview_original_states: dict[Cell, bool] = {}
-        self._rotated_pattern_matrix: list[list[bool]] = None
 
         self.show_grid: bool = True
         self.setBackgroundBrush(QBrush(Qt.black))
@@ -62,38 +62,41 @@ class GridGraphicsScene(QGraphicsScene):
 
     def toggle_grid(self):
         self.show_grid = not self.show_grid
+        brush: QBrush = QBrush(Qt.black) if self.show_grid else QBrush(Qt.NoBrush)
 
-        if self.show_grid:
-            self.setBackgroundBrush(QBrush(Qt.black))
-
-        else:
-            self.setBackgroundBrush(QBrush(Qt.NoBrush))
-
+        self.setBackgroundBrush(brush)
         self.update()
 
     def mousePressEvent(self, event: QMouseEvent):
         if self.cells_interaction_enabled and self._preview_enabled:
+            # Apply the preview pattern on left click
             if event.button() == Qt.LeftButton:
                 for cell in self._previewed_cells:
                     cell.set_alive(True)
                     self.controller.toggle_cell_alive(cell.row, cell.col)
+
                 self._previewed_cells.clear()
                 self._preview_enabled = False
                 self._preview_pattern = None
+
                 return
 
+            # Cancel the preview pattern on right click
             if event.button() == Qt.RightButton:
                 for cell in self._previewed_cells:
-                    cell.set_alive_preview(False)
                     cell.set_alive(
                         self._preview_original_states.get(cell, cell.is_alive())
                     )
+
                 self._previewed_cells.clear()
                 self._preview_original_states.clear()
                 self._preview_enabled = False
                 self._preview_pattern = None
+                self.controller.stop_preview_pattern()
+
                 return
 
+        # Enable cell toggling on mouse press
         if self.cells_interaction_enabled:
             pos = event.scenePos()
             item = self.itemAt(pos, self.views()[0].transform())
@@ -114,45 +117,43 @@ class GridGraphicsScene(QGraphicsScene):
         if not isinstance(item, Cell):
             return
 
+        # Handle preview pattern
         if self.cells_interaction_enabled and self._preview_enabled:
+            # Clear previous preview
             for cell in self._previewed_cells:
-                cell.set_alive_preview(False)
-                # Restaure l'état visuel réel
                 cell.set_alive(self._preview_original_states.get(cell, cell.is_alive()))
+
             self._previewed_cells.clear()
             self._preview_original_states.clear()
 
-            pos = event.scenePos()
-            item = self.itemAt(pos, self.views()[0].transform())
+            # Apply the pattern preview
+            start_row, start_col = item.row, item.col
+            matrix = self._preview_pattern.matrix
+            pattern_rows = len(matrix)
+            pattern_cols = len(matrix[0]) if matrix else 0
 
-            if isinstance(item, Cell):
-                start_row, start_col = item.row, item.col
-                matrix = self._preview_pattern.matrix  # taille (N, M)
-                pattern_rows = len(matrix)
-                pattern_cols = len(matrix[0]) if matrix else 0
+            for dy in range(pattern_rows):
+                for dx in range(pattern_cols):
+                    if matrix[dy][dx]:
+                        target_row = start_row + dy
+                        target_col = start_col + dx
 
-                for dy in range(pattern_rows):
-                    for dx in range(pattern_cols):
-                        if matrix[dy][dx]:  # Si cellule vivante dans le motif
-                            target_row = start_row + dy
-                            target_col = start_col + dx
+                        if (
+                            0 <= target_row < self.nb_rows
+                            and 0 <= target_col < self.nb_cols
+                        ):
+                            cell = self.itemAt(
+                                target_col * self.cell_size,
+                                target_row * self.cell_size,
+                                QTransform(),
+                            )
 
-                            if (
-                                0 <= target_row < self.nb_rows
-                                and 0 <= target_col < self.nb_cols
-                            ):
-                                cell = self.itemAt(
-                                    target_col * self.cell_size,
-                                    target_row * self.cell_size,
-                                    QTransform(),
-                                )
-                                if isinstance(cell, Cell):
-                                    self._preview_original_states[cell] = (
-                                        cell.is_alive()
-                                    )
-                                    cell.set_alive_preview(True)
-                                    self._previewed_cells.add(cell)
+                            if isinstance(cell, Cell):
+                                self._preview_original_states[cell] = cell.is_alive()
+                                cell.set_alive_preview()
+                                self._previewed_cells.add(cell)
 
+        # Toggle cell state on mouse move
         if self.cells_interaction_enabled and self._mouse_dragging:
             if item not in self._visited_cells:
                 self._visited_cells.add(item)
@@ -160,6 +161,7 @@ class GridGraphicsScene(QGraphicsScene):
                 self.controller.toggle_cell_alive(item.row, item.col)
 
     def mouseReleaseEvent(self, event: QMouseEvent):
+        # Disable cell toggling when the mouse is released
         if event.button() == Qt.LeftButton:
             self._mouse_dragging = False
             self._visited_cells.clear()
@@ -168,10 +170,3 @@ class GridGraphicsScene(QGraphicsScene):
     def enable_preview_pattern(self, pattern: Pattern):
         self._preview_enabled = True
         self._preview_pattern = pattern
-        self._rotated_pattern_matrix = [row[:] for row in pattern.matrix]
-
-    def _rotate_pattern_90(self):
-        if self._rotated_pattern_matrix:
-            self._rotated_pattern_matrix = [
-                list(reversed(col)) for col in zip(*self._rotated_pattern_matrix)
-            ]

@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (
 from controller import Controller
 from control_layout import ControlLayout
 from graphics_view import GraphicsView
+from add_custom_pattern_dialog import AddCustomPatternDialog
 
 
 class MainWindow(QMainWindow):
@@ -14,6 +15,9 @@ class MainWindow(QMainWindow):
 
         self.controller: Controller = Controller()
         self.controller.close_application_signal.connect(self.close)
+        self.controller.open_add_custom_pattern_dialog_signal.connect(
+            self.show_add_custom_pattern_dialog
+        )
 
         self.setWindowTitle("Game of Life")
         self.resize(1920, 1080)
@@ -36,3 +40,7 @@ class MainWindow(QMainWindow):
 
         control_layout = ControlLayout()
         control_widget.setLayout(control_layout)
+
+    def show_add_custom_pattern_dialog(self):
+        add_custom_pattern_dialog = AddCustomPatternDialog()
+        add_custom_pattern_dialog.exec_()
