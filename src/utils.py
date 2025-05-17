@@ -1,8 +1,8 @@
 import os
+import json
 import cv2
 import numpy as np
-import json
-from pattern import Pattern
+from model.pattern import Pattern
 
 BLACK = 0
 WHITE = 255

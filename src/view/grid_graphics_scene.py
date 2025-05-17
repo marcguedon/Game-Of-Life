@@ -1,9 +1,9 @@
 from PyQt5.QtWidgets import QGraphicsScene
 from PyQt5.QtGui import QMouseEvent, QTransform, QBrush, QCursor
 from PyQt5.QtCore import Qt
-from controller import Controller
-from cell import Cell
-from pattern import Pattern
+from controller.controller import Controller
+from view.cell import Cell
+from model.pattern import Pattern
 
 
 class GridGraphicsScene(QGraphicsScene):
@@ -47,6 +47,7 @@ class GridGraphicsScene(QGraphicsScene):
             if isinstance(item, Cell):
                 item.set_alive(False)
 
+    # TODO: Use a thread to update the preview pattern
     def update_scene(self, changed_cells: list[tuple[int, int]]):
         for row, col in changed_cells:
             cell: Cell = self.itemAt(
@@ -181,12 +182,16 @@ class GridGraphicsScene(QGraphicsScene):
         if self.cells_interaction_enabled and self._preview_enabled:
             self.update_preview_at(pos)
 
+            return
+
         # Toggle cell state on mouse move
         if self.cells_interaction_enabled and self._mouse_dragging:
             if item not in self._visited_cells:
                 self._visited_cells.add(item)
                 item.set_alive(self._drag_initial_state)
                 self.controller.toggle_cell_alive(item.row, item.col)
+
+            return
 
     def mouseReleaseEvent(self, event: QMouseEvent):
         # Disable cell toggling when the mouse is released

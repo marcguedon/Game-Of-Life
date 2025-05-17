@@ -1,7 +1,7 @@
 import numpy as np
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer
 from PyQt5.QtWidgets import QMessageBox
-from pattern import Pattern
+from model.pattern import Pattern
 from game_rules import (
     conway_rules,
     highlife_rules,

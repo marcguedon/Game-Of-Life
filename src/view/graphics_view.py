@@ -1,9 +1,9 @@
 from PyQt5.QtWidgets import QGraphicsView
 from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtGui import QMouseEvent, QKeyEvent
-from controller import Controller
-from grid_graphics_scene import GridGraphicsScene
-from pattern import Pattern
+from controller.controller import Controller
+from view.grid_graphics_scene import GridGraphicsScene
+from model.pattern import Pattern
 
 
 class GraphicsView(QGraphicsView):

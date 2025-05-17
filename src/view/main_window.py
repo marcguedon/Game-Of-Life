@@ -3,10 +3,10 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QHBoxLayout,
 )
-from controller import Controller
-from control_layout import ControlLayout
-from graphics_view import GraphicsView
-from add_custom_pattern_dialog import AddCustomPatternDialog
+from controller.controller import Controller
+from view.control_layout import ControlLayout
+from view.graphics_view import GraphicsView
+from view.add_custom_pattern_dialog import AddCustomPatternDialog
 
 
 class MainWindow(QMainWindow):

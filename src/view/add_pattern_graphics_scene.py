@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QGraphicsScene
 from PyQt5.QtGui import QMouseEvent, QBrush
 from PyQt5.QtCore import Qt
-from cell import Cell
+from view.cell import Cell
 
 
 class AddPatternGraphicsScene(QGraphicsScene):

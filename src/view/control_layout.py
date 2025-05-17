@@ -10,8 +10,8 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor, QIntValidator
-from controller import Controller
-from patterns_tab_widget import PatternsTabWidget
+from controller.controller import Controller
+from view.patterns_tab_widget import PatternsTabWidget
 
 
 class ControlLayout(QVBoxLayout):
@@ -25,7 +25,14 @@ class ControlLayout(QVBoxLayout):
 
     # TODO: Improve the UI
     def create_ui(self):
-        self.setContentsMargins(20, 75, 20, 100)
+        self.setContentsMargins(20, 20, 20, 50)
+
+        game_label = QLabel("Game of Life")
+        game_label.setAlignment(Qt.AlignCenter)
+        game_label.setStyleSheet("font-size: 20px; font-weight: bold;")
+        self.addWidget(game_label)
+
+        self.addStretch()
 
         sub_layout = QVBoxLayout()
         sub_layout.setSpacing(30)
@@ -57,7 +64,7 @@ class ControlLayout(QVBoxLayout):
                 }
             """
         )
-        game_rules_help_btn.setToolTip("Help")
+        game_rules_help_btn.setToolTip("Game rules help")
         game_rules_help_btn.setCursor(QCursor(Qt.PointingHandCursor))
         game_rules_help_btn.clicked.connect(self.controller.show_games_rules_help)
         rules_sub_layout.addWidget(game_rules_help_btn)
@@ -123,8 +130,8 @@ class ControlLayout(QVBoxLayout):
         self.start_btn.setCursor(QCursor(Qt.PointingHandCursor))
         start_pause_layout.addWidget(self.start_btn)
 
-        self.clear_btn = QPushButton("Clear simulation")
-        self.clear_btn.setToolTip("Clear simulation")
+        self.clear_btn = QPushButton("Clear grid")
+        self.clear_btn.setToolTip("Clear grid")
         self.clear_btn.clicked.connect(self.controller.clear_simulation)
         self.clear_btn.setCursor(QCursor(Qt.PointingHandCursor))
         sub_layout.addWidget(self.clear_btn)
@@ -156,7 +163,7 @@ class ControlLayout(QVBoxLayout):
                 }
             """
         )
-        patterns_help_btn.setToolTip("Help")
+        patterns_help_btn.setToolTip("Patterns help")
         patterns_help_btn.setCursor(QCursor(Qt.PointingHandCursor))
         patterns_help_btn.clicked.connect(self.controller.show_patterns_help)
         patterns_sub_layout.addWidget(patterns_help_btn)
@@ -170,7 +177,7 @@ class ControlLayout(QVBoxLayout):
         self.show_hide_grid_btn.setCursor(QCursor(Qt.PointingHandCursor))
         sub_layout.addWidget(self.show_hide_grid_btn)
 
-        self.stretch(1)
+        self.addStretch()
 
         separator = QFrame()
         separator.setFrameShape(QFrame.HLine)

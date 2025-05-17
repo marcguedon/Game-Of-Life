@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout
 from PyQt5.QtCore import Qt
-from pattern_button import PatternButton
+from view.pattern_button import PatternButton
 
 
 class PatternsTypeTab(QWidget):

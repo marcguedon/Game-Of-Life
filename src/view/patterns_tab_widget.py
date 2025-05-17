@@ -2,10 +2,10 @@ import os
 from PyQt5.QtWidgets import QTabWidget, QPushButton
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor
-from controller import Controller
-from patterns_type_tab import PatternsTypeTab
-from pattern_button import PatternButton
-from pattern import Pattern
+from controller.controller import Controller
+from view.patterns_type_tab import PatternsTypeTab
+from view.pattern_button import PatternButton
+from model.pattern import Pattern
 from utils import load_pattern_from_file
 
 
@@ -23,7 +23,7 @@ class PatternsTabWidget(QTabWidget):
         self.controller.add_custom_pattern_signal.connect(self.add_custom_pattern)
 
         patterns_dir = os.path.join(
-            os.path.dirname(os.path.dirname(__file__)), "patterns"
+            os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "patterns"
         )
 
         patterns_types = [patterns_type for patterns_type in os.listdir(patterns_dir)]

@@ -10,10 +10,10 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor
-from controller import Controller
-from add_pattern_graphics_scene import AddPatternGraphicsScene
-from cell import Cell
-from pattern import Pattern
+from controller.controller import Controller
+from view.add_pattern_graphics_scene import AddPatternGraphicsScene
+from view.cell import Cell
+from model.pattern import Pattern
 from utils import from_pattern_to_image
 
 
@@ -23,7 +23,7 @@ class AddCustomPatternDialog(QDialog):
 
         self.controller = Controller()
 
-        self.setWindowTitle("Add Custom Pattern")
+        self.setWindowTitle("Add custom pattern")
         self.setMinimumSize(600, 600)
 
         self.create_ui()
@@ -33,26 +33,8 @@ class AddCustomPatternDialog(QDialog):
         main_layout = QVBoxLayout()
         self.setLayout(main_layout)
 
-        pattern_size_layout = QHBoxLayout()
-        main_layout.addLayout(pattern_size_layout)
-
-        self.pattern_width_spin = QDoubleSpinBox(self)
-        self.pattern_width_spin.setRange(1, 32)
-        self.pattern_width_spin.setValue(10)
-        self.pattern_width_spin.setSingleStep(1)
-        self.pattern_width_spin.setPrefix("Width: ")
-        self.pattern_width_spin.setSuffix(" cells")
-        self.pattern_width_spin.setDecimals(0)
-        pattern_size_layout.addWidget(self.pattern_width_spin)
-
-        self.pattern_height_spin = QDoubleSpinBox(self)
-        self.pattern_height_spin.setRange(1, 32)
-        self.pattern_height_spin.setValue(10)
-        self.pattern_height_spin.setSingleStep(1)
-        self.pattern_height_spin.setPrefix("Height: ")
-        self.pattern_height_spin.setSuffix(" cells")
-        self.pattern_height_spin.setDecimals(0)
-        pattern_size_layout.addWidget(self.pattern_height_spin)
+        sub_layout = QHBoxLayout()
+        main_layout.addLayout(sub_layout)
 
         self.pattern_name_line_edit = QLineEdit()
         self.pattern_name_line_edit.textChanged.connect(
@@ -61,15 +43,36 @@ class AddCustomPatternDialog(QDialog):
         self.pattern_name_line_edit.setPlaceholderText("Pattern name")
         self.pattern_name_line_edit.setToolTip("Pattern name")
         self.pattern_name_line_edit.setCursor(QCursor(Qt.PointingHandCursor))
-        pattern_size_layout.addWidget(self.pattern_name_line_edit)
+        sub_layout.addWidget(self.pattern_name_line_edit)
 
-        pattern_size_layout.addStretch()
+        sub_layout.addStretch()
 
-        clear_button = QPushButton("Clear")
+        clear_button = QPushButton("Clear grid")
         clear_button.setToolTip("Clear grid")
         clear_button.setCursor(QCursor(Qt.PointingHandCursor))
         clear_button.clicked.connect(self.clear_scene)
-        pattern_size_layout.addWidget(clear_button)
+        sub_layout.addWidget(clear_button)
+
+        pattern_size_layout = QHBoxLayout()
+        main_layout.addLayout(pattern_size_layout)
+
+        self.pattern_width_spin = QDoubleSpinBox(self)
+        self.pattern_width_spin.setRange(1, 30)
+        self.pattern_width_spin.setValue(10)
+        self.pattern_width_spin.setSingleStep(1)
+        self.pattern_width_spin.setPrefix("Width: ")
+        self.pattern_width_spin.setSuffix(" cells")
+        self.pattern_width_spin.setDecimals(0)
+        pattern_size_layout.addWidget(self.pattern_width_spin)
+
+        self.pattern_height_spin = QDoubleSpinBox(self)
+        self.pattern_height_spin.setRange(1, 30)
+        self.pattern_height_spin.setValue(10)
+        self.pattern_height_spin.setSingleStep(1)
+        self.pattern_height_spin.setPrefix("Height: ")
+        self.pattern_height_spin.setSuffix(" cells")
+        self.pattern_height_spin.setDecimals(0)
+        pattern_size_layout.addWidget(self.pattern_height_spin)
 
         self.add_pattern_graphics_view: QGraphicsView = QGraphicsView()
         self.add_pattern_graphics_view.scene: AddPatternGraphicsScene = (
@@ -119,7 +122,7 @@ class AddCustomPatternDialog(QDialog):
         for item in self.add_pattern_graphics_view.scene.items():
             if isinstance(item, Cell):
                 row: int = item.row
-                col: int = item.col
+                # col: int = item.col
 
                 while len(matrix) <= row:
                     matrix.append([])
