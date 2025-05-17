@@ -1,12 +1,11 @@
 from PyQt5.QtWidgets import QGraphicsScene
-from PyQt5.QtGui import QMouseEvent, QTransform, QBrush
+from PyQt5.QtGui import QMouseEvent, QTransform, QBrush, QCursor
 from PyQt5.QtCore import Qt
 from controller import Controller
 from cell import Cell
 from pattern import Pattern
 
 
-# TODO: Add preview pattern rotation/flipping
 class GridGraphicsScene(QGraphicsScene):
     def __init__(self, nb_rows: int = 146, nb_cols: int = 225, cell_size: int = 20):
         super().__init__()
@@ -33,6 +32,7 @@ class GridGraphicsScene(QGraphicsScene):
         self._preview_pattern: Pattern = None
         self._previewed_cells: set[Cell] = set()
         self._preview_original_states: dict[Cell, bool] = {}
+        self._rotated_pattern_matrix: list[list[bool]] = None
 
         self.show_grid: bool = True
         self.setBackgroundBrush(QBrush(Qt.black))
@@ -67,6 +67,75 @@ class GridGraphicsScene(QGraphicsScene):
         self.setBackgroundBrush(brush)
         self.update()
 
+    def enable_preview_pattern(self, pattern: Pattern):
+        self._preview_enabled = True
+        self._preview_pattern = pattern
+        self._rotated_pattern_matrix = [row[:] for row in pattern.matrix]
+
+    def cancel_preview_pattern(self):
+        for cell in self._previewed_cells:
+            cell.set_alive(self._preview_original_states.get(cell, cell.is_alive()))
+
+        self._previewed_cells.clear()
+        self._preview_original_states.clear()
+        self._preview_enabled = False
+        self._preview_pattern = None
+        self.controller.stop_preview_pattern()
+
+    def _rotate_pattern(self):
+        if self._rotated_pattern_matrix:
+            self._rotated_pattern_matrix = [
+                list(reversed(col)) for col in zip(*self._rotated_pattern_matrix)
+            ]
+
+    def _flip_pattern_horizontal(self):
+        if self._rotated_pattern_matrix:
+            self._rotated_pattern_matrix = [
+                list(reversed(row)) for row in self._rotated_pattern_matrix
+            ]
+
+    def _flip_pattern_vertical(self):
+        if self._rotated_pattern_matrix:
+            self._rotated_pattern_matrix = list(reversed(self._rotated_pattern_matrix))
+
+    def update_preview_at(self, scene_pos):
+        item = self.itemAt(scene_pos, self.views()[0].transform())
+        if not isinstance(item, Cell):
+            return
+
+        # Clear previous preview
+        for cell in self._previewed_cells:
+            cell.set_alive(self._preview_original_states.get(cell, cell.is_alive()))
+
+        self._previewed_cells.clear()
+        self._preview_original_states.clear()
+
+        # Apply the pattern preview
+        start_row, start_col = item.row, item.col
+        matrix = self._rotated_pattern_matrix
+        pattern_rows = len(matrix)
+        pattern_cols = len(matrix[0]) if matrix else 0
+
+        for dy in range(pattern_rows):
+            for dx in range(pattern_cols):
+                if matrix[dy][dx]:
+                    target_row = start_row + dy
+                    target_col = start_col + dx
+
+                    if (
+                        0 <= target_row < self.nb_rows
+                        and 0 <= target_col < self.nb_cols
+                    ):
+                        cell = self.itemAt(
+                            target_col * self.cell_size,
+                            target_row * self.cell_size,
+                            QTransform(),
+                        )
+                        if isinstance(cell, Cell):
+                            self._preview_original_states[cell] = cell.is_alive()
+                            cell.set_alive_preview()
+                            self._previewed_cells.add(cell)
+
     def mousePressEvent(self, event: QMouseEvent):
         if self.cells_interaction_enabled and self._preview_enabled:
             # Apply the preview pattern on left click
@@ -83,16 +152,7 @@ class GridGraphicsScene(QGraphicsScene):
 
             # Cancel the preview pattern on right click
             if event.button() == Qt.RightButton:
-                for cell in self._previewed_cells:
-                    cell.set_alive(
-                        self._preview_original_states.get(cell, cell.is_alive())
-                    )
-
-                self._previewed_cells.clear()
-                self._preview_original_states.clear()
-                self._preview_enabled = False
-                self._preview_pattern = None
-                self.controller.stop_preview_pattern()
+                self.cancel_preview_pattern()
 
                 return
 
@@ -119,39 +179,7 @@ class GridGraphicsScene(QGraphicsScene):
 
         # Handle preview pattern
         if self.cells_interaction_enabled and self._preview_enabled:
-            # Clear previous preview
-            for cell in self._previewed_cells:
-                cell.set_alive(self._preview_original_states.get(cell, cell.is_alive()))
-
-            self._previewed_cells.clear()
-            self._preview_original_states.clear()
-
-            # Apply the pattern preview
-            start_row, start_col = item.row, item.col
-            matrix = self._preview_pattern.matrix
-            pattern_rows = len(matrix)
-            pattern_cols = len(matrix[0]) if matrix else 0
-
-            for dy in range(pattern_rows):
-                for dx in range(pattern_cols):
-                    if matrix[dy][dx]:
-                        target_row = start_row + dy
-                        target_col = start_col + dx
-
-                        if (
-                            0 <= target_row < self.nb_rows
-                            and 0 <= target_col < self.nb_cols
-                        ):
-                            cell = self.itemAt(
-                                target_col * self.cell_size,
-                                target_row * self.cell_size,
-                                QTransform(),
-                            )
-
-                            if isinstance(cell, Cell):
-                                self._preview_original_states[cell] = cell.is_alive()
-                                cell.set_alive_preview()
-                                self._previewed_cells.add(cell)
+            self.update_preview_at(pos)
 
         # Toggle cell state on mouse move
         if self.cells_interaction_enabled and self._mouse_dragging:
@@ -167,6 +195,40 @@ class GridGraphicsScene(QGraphicsScene):
             self._visited_cells.clear()
             self._drag_initial_state = None
 
-    def enable_preview_pattern(self, pattern: Pattern):
-        self._preview_enabled = True
-        self._preview_pattern = pattern
+    def keyPressEvent(self, event):
+        if self.cells_interaction_enabled and self._preview_enabled:
+            # Handle pattern rotation/flipping
+            if event.key() in (Qt.Key_R, Qt.Key_H, Qt.Key_V):
+                for cell in self._previewed_cells:
+                    cell.set_alive_preview()
+                    cell.set_alive(
+                        self._preview_original_states.get(cell, cell.is_alive())
+                    )
+
+                self._previewed_cells.clear()
+                self._preview_original_states.clear()
+
+                # Apply the transformation corresponding to the key pressed
+                if event.key() == Qt.Key_R:
+                    self._rotate_pattern()
+
+                elif event.key() == Qt.Key_H:
+                    self._flip_pattern_horizontal()
+
+                elif event.key() == Qt.Key_V:
+                    self._flip_pattern_vertical()
+
+                # Update pattern preview
+                view = self.views()[0]
+                global_pos = QCursor.pos()
+                local_pos = view.mapFromGlobal(global_pos)
+                scene_pos = view.mapToScene(local_pos)
+                self.update_preview_at(scene_pos)
+
+                return
+
+            # Cancel the preview pattern on Escape key pressed
+            if event.key() == Qt.Key_Escape:
+                self.cancel_preview_pattern()
+
+                return

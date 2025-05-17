@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QGraphicsView
 from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtGui import QMouseEvent
+from PyQt5.QtGui import QMouseEvent, QKeyEvent
 from controller import Controller
 from grid_graphics_scene import GridGraphicsScene
 from pattern import Pattern
@@ -33,6 +33,13 @@ class GraphicsView(QGraphicsView):
         self._pan_start: QPoint = QPoint()
 
         self._preview_enabled: bool = False
+
+    def enable_preview_pattern(self, pattern: Pattern):
+        self.setFocus()
+        self._preview_enabled = True
+
+    def disable_preview_pattern(self):
+        self._preview_enabled = False
 
     def wheelEvent(self, event: QMouseEvent):
         if event.angleDelta().y() > 0 and self.current_scale < self.max_scale:
@@ -78,8 +85,5 @@ class GraphicsView(QGraphicsView):
     def mouseDoubleClickEvent(self, event: QMouseEvent):
         pass
 
-    def enable_preview_pattern(self, pattern: Pattern):
-        self._preview_enabled = True
-
-    def disable_preview_pattern(self):
-        self._preview_enabled = False
+    def keyPressEvent(self, event: QKeyEvent):
+        self.scene.keyPressEvent(event)
