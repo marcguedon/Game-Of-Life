@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor, QIntValidator
 from controller.controller import Controller
+from game_rules import GAME_RULES_REGISTRY
 from view.patterns_tab_widget import PatternsTabWidget
 
 
@@ -72,14 +73,8 @@ class ControlLayout(QVBoxLayout):
         self.rules_combo_box = QComboBox()
         self.rules_combo_box.setToolTip("Select rules for the simulation")
         self.rules_combo_box.setCursor(QCursor(Qt.PointingHandCursor))
-        self.rules_combo_box.addItem("Conway (B3/S23) rules")
-        self.rules_combo_box.addItem("HighLife (B36/S23) rules")
-        self.rules_combo_box.addItem("Day and Night (B3678/S34678) rules")
-        self.rules_combo_box.addItem("Seeds (B2/S) rules")
-        self.rules_combo_box.addItem("Life w/o death (B3/S012345678) rules")
-        self.rules_combo_box.addItem("Diamoeba (B35678/S5678) rules")
-        self.rules_combo_box.addItem("Replicator (B1357/S1357) rules")
-        self.rules_combo_box.addItem("Anneal (B4678/S35678) rules")
+        for rule_name in GAME_RULES_REGISTRY.keys():
+            self.rules_combo_box.addItem(rule_name)
         rules_layout.addWidget(self.rules_combo_box)
 
         game_speed_layout = QVBoxLayout()
@@ -102,7 +97,7 @@ class ControlLayout(QVBoxLayout):
         iterations_layout.setSpacing(5)
         sub_layout.addLayout(iterations_layout)
 
-        iterations_label = QLabel("Iterations")
+        iterations_label = QLabel("Number of iterations")
         iterations_layout.addWidget(iterations_label)
 
         self.iterations_line_edit = QLineEdit()
@@ -144,7 +139,7 @@ class ControlLayout(QVBoxLayout):
         patterns_sub_layout.setContentsMargins(0, 0, 2, 0)
         patterns_layout.addLayout(patterns_sub_layout)
 
-        patterns_label = QLabel("Patterns")
+        patterns_label = QLabel("Predefined patterns")
         patterns_sub_layout.addWidget(patterns_label)
 
         patterns_sub_layout.addStretch()
@@ -195,6 +190,7 @@ class ControlLayout(QVBoxLayout):
         self.rules_combo_box.setEnabled(True)
         self.game_speed_slider.setEnabled(True)
         self.iterations_line_edit.setEnabled(True)
+        self.iterations_line_edit.setText("")
         self.start_btn.setEnabled(True)
         self.clear_btn.setEnabled(True)
 

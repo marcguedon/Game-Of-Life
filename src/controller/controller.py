@@ -2,16 +2,7 @@ import numpy as np
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer
 from PyQt5.QtWidgets import QMessageBox
 from model.pattern import Pattern
-from game_rules import (
-    conway_rules,
-    highlife_rules,
-    seeds_rules,
-    day_and_night_rules,
-    life_wo_death_rules,
-    diamoeba_rules,
-    replicator_rules,
-    anneal_rules,
-)
+from game_rules import GAME_RULES_REGISTRY
 from utils import save_pattern_to_file
 
 
@@ -70,29 +61,7 @@ class Controller(QObject):
         self.start_simulation_signal.emit()
         self.toggle_cells_interaction_signal.emit()
 
-        if rules == "Conway (B3/S23) rules":
-            self.rules = conway_rules
-
-        elif rules == "HighLife (B36/S23) rules":
-            self.rules = highlife_rules
-
-        elif rules == "Seeds (B2/S) rules":
-            self.rules = seeds_rules
-
-        elif rules == "Day and Night (B3678/S34678) rules":
-            self.rules = day_and_night_rules
-
-        elif rules == "Life w/o death (B3/S012345678) rules":
-            self.rules = life_wo_death_rules
-
-        elif rules == "Diamoeba (B35678/S5678) rules":
-            self.rules = diamoeba_rules
-
-        elif rules == "Replicator (B1357/S1357) rules":
-            self.rules = replicator_rules
-
-        elif rules == "Anneal (B4678/S35678) rules":
-            self.rules = anneal_rules
+        self.rules = GAME_RULES_REGISTRY.get(rules)
 
         self.iteration_limit = iterations
         self.current_iteration = 0
