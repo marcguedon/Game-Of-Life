@@ -11,8 +11,8 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor, QIntValidator
 from controller.controller import Controller
-from game_rules import GAME_RULES_REGISTRY
 from view.patterns_tab_widget import PatternsTabWidget
+from game_rules import GAME_RULES_REGISTRY
 
 
 class ControlLayout(QVBoxLayout):

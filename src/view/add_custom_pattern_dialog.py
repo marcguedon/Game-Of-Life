@@ -21,7 +21,7 @@ class AddCustomPatternDialog(QDialog):
     def __init__(self):
         super().__init__()
 
-        self.controller = Controller()
+        self.controller: Controller = Controller()
 
         self.setWindowTitle("Add custom pattern")
         self.setMinimumSize(600, 600)

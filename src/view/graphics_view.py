@@ -53,17 +53,24 @@ class GraphicsView(QGraphicsView):
     def mousePressEvent(self, event: QMouseEvent):
         if event.button() == Qt.MiddleButton:
             self._panning = True
+            self.setFocus()
             self.setCursor(Qt.ClosedHandCursor)
             self._pan_start = event.pos()
 
         else:
+            if not self._panning:
+                self.setCursor(Qt.CrossCursor)
+
             super().mousePressEvent(event)
 
     # TODO: Disabling preview pattern placement while dragging
     def mouseMoveEvent(self, event: QMouseEvent):
         if self._panning:
+            self.setFocus()
+            self.setCursor(Qt.ClosedHandCursor)
             delta = self._pan_start - event.pos()
             self._pan_start = event.pos()
+
             self.horizontalScrollBar().setValue(
                 self.horizontalScrollBar().value() + delta.x()
             )
@@ -72,6 +79,13 @@ class GraphicsView(QGraphicsView):
             )
 
         else:
+            item = self.itemAt(event.pos())
+            if item is not None:
+                self.setCursor(Qt.CrossCursor)
+
+            else:
+                self.setCursor(Qt.ArrowCursor)
+
             super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event: QMouseEvent):

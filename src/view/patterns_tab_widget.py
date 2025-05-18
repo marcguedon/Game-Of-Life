@@ -13,7 +13,7 @@ class PatternsTabWidget(QTabWidget):
     def __init__(self):
         super().__init__()
 
-        self.controller = Controller()
+        self.controller: Controller = Controller()
         self.controller.start_simulation_signal.connect(
             lambda enabled=False: self.toggle_buttons(enabled)
         )

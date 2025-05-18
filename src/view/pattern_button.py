@@ -8,7 +8,7 @@ class PatternButton(QPushButton):
     def __init__(self, pattern: Pattern):
         super().__init__()
 
-        self.controller = Controller()
+        self.controller: Controller = Controller()
         self.pattern: Pattern = pattern
 
         self.setCursor(Qt.PointingHandCursor)
