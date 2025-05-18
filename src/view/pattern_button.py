@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtCore import Qt
-from model.pattern import Pattern
 from controller.controller import Controller
+from model.pattern import Pattern
 
 
 class PatternButton(QPushButton):

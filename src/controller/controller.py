@@ -16,7 +16,7 @@ from utils import save_pattern_to_file
 
 
 class Controller(QObject):
-    _instance = None
+    _instance: bool = None
 
     NB_ROWS: int = 146
     NB_COLS: int = 225
@@ -52,7 +52,7 @@ class Controller(QObject):
         self._initialized = True
 
         self.grid: np.ndarray = np.full((self.NB_ROWS, self.NB_COLS), False, dtype=bool)
-        self.timer = QTimer()
+        self.timer: QTimer = QTimer()
         self.timer.timeout.connect(self._step_simulation)
 
         self.iteration_limit: int = None
@@ -63,11 +63,9 @@ class Controller(QObject):
         self.close_application_signal.emit()
 
     def toggle_cell_alive(self, row: int, col: int):
-        if self.grid[row, col]:
-            self.grid[row, col] = False
-        else:
-            self.grid[row, col] = True
+        self.grid[row, col] = not self.grid[row, col]
 
+    # TODO: Improve the rules selection
     def start_simulation(self, rules: str, speed: int, iterations: int):
         self.start_simulation_signal.emit()
         self.toggle_cells_interaction_signal.emit()
@@ -127,28 +125,38 @@ class Controller(QObject):
         self.update_scene_signal.emit(changed_cells)
         self.current_iteration += 1
 
-    # TODO: Improve the help dialog
     def show_games_rules_help(self):
         help_dialog = QMessageBox()
         help_dialog.setWindowTitle("Game rules help")
         help_dialog.setText(
-            "This is a simulation of Conway's Game of Life and other cellular automata.\n"
-            "You can select different rules and adjust the game speed.\n"
-            "Click on the grid to toggle cell states."
+            "Different game rules are available. The 'B/S' notation means:\n"
+            "- 'B' stands for 'Birth': the conditions under which a dead cell becomes alive,\n"
+            "- 'S' stands for 'Survival': the conditions under which a living cell stays alive.\n"
+            "\n"
+            "Example with Conway (B3/S23) rules:\n"
+            "- 'B3' means a dead cell becomes alive if it has exactly 3 living neighbors,\n"
+            "- 'S23' means a living cell stays alive if it has 2 or 3 living neighbors."
         )
         help_dialog.setIcon(QMessageBox.Information)
         help_dialog.setStandardButtons(QMessageBox.Ok)
         help_dialog.setModal(True)
         help_dialog.exec_()
 
-    # TODO: Improve the help dialog
     def show_patterns_help(self):
         help_dialog = QMessageBox()
         help_dialog.setWindowTitle("Patterns help")
         help_dialog.setText(
             "Patterns are predefined configurations of cells that can be placed on the grid.\n"
-            "The ones already available are made to work with the Conway rules.\n"
-            "You can add custom patterns by clicking the 'Add' button in the Customs tab.\n"
+            "\n"
+            "The ones already available are made to work with the Conway rules:\n"
+            "- Canons: structures that periodically produce spaceships,\n"
+            "- Oscillators: patterns that return to their original configuration after a fixed number of generations,\n"
+            "- Spaceships: patterns that travel across the grid over time while periodically returning to their original shape,\n"
+            "- Still lifes: patterns that are completely stable,\n"
+            "- Puffers: moving patterns that leave behind a trail of debris,\n"
+            "- Mathusalems: small starting patterns that take a very large number of generations to stabilize.\n"
+            "\n"
+            "You can add custom patterns by clicking the 'Add' button in the Customs tab."
         )
         help_dialog.setIcon(QMessageBox.Information)
         help_dialog.setStandardButtons(QMessageBox.Ok)
