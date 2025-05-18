@@ -61,7 +61,7 @@ def save_pattern_to_file(pattern: Pattern):
         os.path.dirname(os.path.dirname(__file__)), "patterns", "customs"
     )
 
-    # TODO: Manage already existing files
+    # TODO: Manage already existing files not to overwrite them
 
     with open(
         os.path.join(custom_patterns_dir, filename), "w", encoding="UTF-8"

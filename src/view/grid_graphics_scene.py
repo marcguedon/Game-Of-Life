@@ -10,7 +10,7 @@ class GridGraphicsScene(QGraphicsScene):
     def __init__(self, nb_rows: int = 146, nb_cols: int = 225, cell_size: int = 20):
         super().__init__()
 
-        self.controller = Controller()
+        self.controller: Controller = Controller()
         self.controller.clear_simulation_signal.connect(self.clear_scene)
         self.controller.update_scene_signal.connect(self.update_scene)
         self.controller.toggle_cells_interaction_signal.connect(
@@ -187,9 +187,10 @@ class GridGraphicsScene(QGraphicsScene):
         # Toggle cell state on mouse move
         if self.cells_interaction_enabled and self._mouse_dragging:
             if item not in self._visited_cells:
-                self._visited_cells.add(item)
-                item.set_alive(self._drag_initial_state)
-                self.controller.toggle_cell_alive(item.row, item.col)
+                if item.is_alive() != self._drag_initial_state:
+                    self._visited_cells.add(item)
+                    item.set_alive(self._drag_initial_state)
+                    self.controller.toggle_cell_alive(item.row, item.col)
 
             return
 
