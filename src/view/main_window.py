@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (
 )
 from controller.controller import Controller
 from view.control_layout import ControlLayout
-from view.graphics_view import GraphicsView
+from view.grid_graphics_view import GridGraphicsView
 from view.add_custom_pattern_dialog import AddCustomPatternDialog
 
 
@@ -31,7 +31,7 @@ class MainWindow(QMainWindow):
         main_layout = QHBoxLayout()
         window_widget.setLayout(main_layout)
 
-        self.graphics_view = GraphicsView()
+        self.graphics_view = GridGraphicsView()
         main_layout.addWidget(self.graphics_view, stretch=1)
 
         control_widget = QWidget()

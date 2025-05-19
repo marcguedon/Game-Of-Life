@@ -1,5 +1,5 @@
-import numpy as np
 from itertools import product
+import numpy as np
 
 
 def _count_neighbors(grid: np.ndarray, cell_row: int, cell_col: int) -> int:
@@ -37,7 +37,7 @@ def _get_cells_to_check(grid: np.ndarray) -> set:
     valid_neighbors = all_neighbors[valid_mask]
 
     cells_to_check = set(map(tuple, valid_neighbors))
-    
+
     return cells_to_check
 
 

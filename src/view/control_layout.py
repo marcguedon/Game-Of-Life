@@ -24,20 +24,21 @@ class ControlLayout(QVBoxLayout):
 
         self.create_ui()
 
-    # TODO: Improve the UI
     def create_ui(self):
-        self.setContentsMargins(20, 20, 20, 50)
+        self.setContentsMargins(20, 30, 20, 50)
+
+        main_layout = QVBoxLayout()
+        main_layout.setSpacing(40)
+        self.addLayout(main_layout)
 
         game_label = QLabel("Game of Life")
         game_label.setAlignment(Qt.AlignCenter)
-        game_label.setStyleSheet("font-size: 20px; font-weight: bold;")
-        self.addWidget(game_label)
-
-        self.addStretch()
+        game_label.setStyleSheet("font-size: 32px; font-weight: bold;")
+        main_layout.addWidget(game_label)
 
         sub_layout = QVBoxLayout()
-        sub_layout.setSpacing(30)
-        self.addLayout(sub_layout)
+        sub_layout.setSpacing(20)
+        main_layout.addLayout(sub_layout)
 
         rules_layout = QVBoxLayout()
         rules_layout.setSpacing(5)
@@ -97,39 +98,38 @@ class ControlLayout(QVBoxLayout):
         iterations_layout.setSpacing(5)
         sub_layout.addLayout(iterations_layout)
 
+        iterations_sub_layout = QHBoxLayout()
+        rules_sub_layout.setContentsMargins(0, 0, 2, 0)
+        iterations_layout.addLayout(iterations_sub_layout)
+
         iterations_label = QLabel("Number of iterations")
-        iterations_layout.addWidget(iterations_label)
+        iterations_sub_layout.addWidget(iterations_label)
+
+        iterations_help_btn = QPushButton("?")
+        iterations_help_btn.setFixedSize(20, 20)
+        iterations_help_btn.setStyleSheet(
+            """
+                QPushButton {
+                    background-color: transparent;
+                    border: none;
+                }
+                QPushButton:hover {
+                    text-decoration: underline;
+                }
+            """
+        )
+        iterations_help_btn.setToolTip("Iterations help")
+        iterations_help_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        iterations_help_btn.clicked.connect(self.controller.show_iterations_help)
+        iterations_sub_layout.addWidget(iterations_help_btn)
 
         self.iterations_line_edit = QLineEdit()
         self.iterations_line_edit.setValidator(QIntValidator(0, 2**31 - 1))
         self.iterations_line_edit.setClearButtonEnabled(True)
         self.iterations_line_edit.setToolTip("Set number of iterations")
-        self.iterations_line_edit.setPlaceholderText("Iterations")
-        self.iterations_line_edit.setCursor(QCursor(Qt.PointingHandCursor))
+        self.iterations_line_edit.setPlaceholderText("Iterations...")
+        self.iterations_line_edit.setCursor(QCursor(Qt.IBeamCursor))
         iterations_layout.addWidget(self.iterations_line_edit)
-
-        start_pause_layout = QHBoxLayout()
-        start_pause_layout.setSpacing(10)
-        sub_layout.addLayout(start_pause_layout)
-
-        self.pause_btn = QPushButton("Pause")
-        self.pause_btn.setToolTip("Pause simulation")
-        self.pause_btn.clicked.connect(self.controller.pause_simulation)
-        self.pause_btn.setEnabled(False)
-        self.pause_btn.setCursor(QCursor(Qt.PointingHandCursor))
-        start_pause_layout.addWidget(self.pause_btn)
-
-        self.start_btn = QPushButton("Start")
-        self.start_btn.setToolTip("Start simulation")
-        self.start_btn.clicked.connect(self.start_simulation)
-        self.start_btn.setCursor(QCursor(Qt.PointingHandCursor))
-        start_pause_layout.addWidget(self.start_btn)
-
-        self.clear_btn = QPushButton("Clear grid")
-        self.clear_btn.setToolTip("Clear grid")
-        self.clear_btn.clicked.connect(self.controller.clear_simulation)
-        self.clear_btn.setCursor(QCursor(Qt.PointingHandCursor))
-        sub_layout.addWidget(self.clear_btn)
 
         patterns_layout = QVBoxLayout()
         patterns_layout.setSpacing(5)
@@ -166,11 +166,43 @@ class ControlLayout(QVBoxLayout):
         patterns_tab_widget = PatternsTabWidget()
         patterns_layout.addWidget(patterns_tab_widget)
 
+        separator = QFrame()
+        separator.setFrameShape(QFrame.HLine)
+        separator.setFrameShadow(QFrame.Sunken)
+        sub_layout.addWidget(separator)
+
+        grid_layout = QHBoxLayout()
+        grid_layout.setSpacing(10)
+        sub_layout.addLayout(grid_layout)
+
         self.show_hide_grid_btn = QPushButton("Show/hide grid")
         self.show_hide_grid_btn.setToolTip("Show/hide grid")
         self.show_hide_grid_btn.clicked.connect(self.controller.show_hide_grid)
         self.show_hide_grid_btn.setCursor(QCursor(Qt.PointingHandCursor))
-        sub_layout.addWidget(self.show_hide_grid_btn)
+        grid_layout.addWidget(self.show_hide_grid_btn)
+
+        self.clear_btn = QPushButton("Clear grid")
+        self.clear_btn.setToolTip("Clear grid")
+        self.clear_btn.clicked.connect(self.controller.clear_simulation)
+        self.clear_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        grid_layout.addWidget(self.clear_btn)
+
+        start_pause_layout = QHBoxLayout()
+        start_pause_layout.setSpacing(10)
+        sub_layout.addLayout(start_pause_layout)
+
+        self.pause_btn = QPushButton("Pause")
+        self.pause_btn.setToolTip("Pause simulation")
+        self.pause_btn.clicked.connect(self.controller.pause_simulation)
+        self.pause_btn.setEnabled(False)
+        self.pause_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        start_pause_layout.addWidget(self.pause_btn)
+
+        self.start_btn = QPushButton("Start")
+        self.start_btn.setToolTip("Start simulation")
+        self.start_btn.clicked.connect(self.start_simulation)
+        self.start_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        start_pause_layout.addWidget(self.start_btn)
 
         self.addStretch()
 
@@ -202,10 +234,11 @@ class ControlLayout(QVBoxLayout):
         self.clear_btn.setEnabled(False)
         self.pause_btn.setEnabled(True)
 
-        iterations: int = 0
-
-        if self.iterations_line_edit.text():
-            iterations = int(self.iterations_line_edit.text())
+        iterations = (
+            int(self.iterations_line_edit.text())
+            if self.iterations_line_edit.text()
+            else 0
+        )
 
         self.controller.start_simulation(
             self.rules_combo_box.currentText(),

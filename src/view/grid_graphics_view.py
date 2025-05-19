@@ -3,15 +3,16 @@ from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtGui import QMouseEvent, QKeyEvent
 from controller.controller import Controller
 from view.grid_graphics_scene import GridGraphicsScene
-from model.pattern import Pattern
 
 
-class GraphicsView(QGraphicsView):
+class GridGraphicsView(QGraphicsView):
     def __init__(self):
         super().__init__()
 
         self.controller: Controller = Controller()
-        self.controller.preview_pattern_signal.connect(self.enable_preview_pattern)
+        self.controller.preview_pattern_signal.connect(
+            lambda pattern: self.enable_preview_pattern()
+        )
         self.controller.stop_preview_pattern_signal.connect(
             self.disable_preview_pattern
         )
@@ -34,7 +35,7 @@ class GraphicsView(QGraphicsView):
 
         self._preview_enabled: bool = False
 
-    def enable_preview_pattern(self, pattern: Pattern):
+    def enable_preview_pattern(self):
         self.setFocus()
         self._preview_enabled = True
 
@@ -96,7 +97,7 @@ class GraphicsView(QGraphicsView):
         else:
             super().mouseReleaseEvent(event)
 
-    def mouseDoubleClickEvent(self, event: QMouseEvent):
+    def mouseDoubleClickEvent(self, _: QMouseEvent):
         pass
 
     def keyPressEvent(self, event: QKeyEvent):

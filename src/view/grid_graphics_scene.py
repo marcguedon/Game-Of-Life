@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QGraphicsScene
-from PyQt5.QtGui import QMouseEvent, QTransform, QBrush, QCursor
+from PyQt5.QtGui import QMouseEvent, QTransform, QBrush, QCursor, QKeyEvent
 from PyQt5.QtCore import Qt
 from controller.controller import Controller
 from view.cell import Cell
@@ -101,6 +101,7 @@ class GridGraphicsScene(QGraphicsScene):
 
     def update_preview_at(self, scene_pos):
         item = self.itemAt(scene_pos, self.views()[0].transform())
+
         if not isinstance(item, Cell):
             return
 
@@ -113,29 +114,29 @@ class GridGraphicsScene(QGraphicsScene):
 
         # Apply the pattern preview
         start_row, start_col = item.row, item.col
-        matrix = self._rotated_pattern_matrix
-        pattern_rows = len(matrix)
-        pattern_cols = len(matrix[0]) if matrix else 0
+        matrix: list[list[bool]] = self._rotated_pattern_matrix
+        pattern_rows: int = len(matrix)
+        pattern_cols: int = len(matrix[0]) if matrix else 0
 
         for dy in range(pattern_rows):
             for dx in range(pattern_cols):
-                if matrix[dy][dx]:
-                    target_row = start_row + dy
-                    target_col = start_col + dx
+                if not matrix[dy][dx]:
+                    continue
 
-                    if (
-                        0 <= target_row < self.nb_rows
-                        and 0 <= target_col < self.nb_cols
-                    ):
-                        cell = self.itemAt(
-                            target_col * self.cell_size,
-                            target_row * self.cell_size,
-                            QTransform(),
-                        )
-                        if isinstance(cell, Cell):
-                            self._preview_original_states[cell] = cell.is_alive()
-                            cell.set_alive_preview()
-                            self._previewed_cells.add(cell)
+                target_row: int = start_row + dy
+                target_col: int = start_col + dx
+
+                if 0 <= target_row < self.nb_rows and 0 <= target_col < self.nb_cols:
+                    cell = self.itemAt(
+                        target_col * self.cell_size,
+                        target_row * self.cell_size,
+                        QTransform(),
+                    )
+
+                    if isinstance(cell, Cell):
+                        self._preview_original_states[cell] = cell.is_alive()
+                        cell.set_alive_preview()
+                        self._previewed_cells.add(cell)
 
     def mousePressEvent(self, event: QMouseEvent):
         if self.cells_interaction_enabled and self._preview_enabled:
@@ -201,7 +202,7 @@ class GridGraphicsScene(QGraphicsScene):
             self._visited_cells.clear()
             self._drag_initial_state = None
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent):
         if self.cells_interaction_enabled and self._preview_enabled:
             # Handle pattern rotation/flipping
             if event.key() in (Qt.Key_R, Qt.Key_H, Qt.Key_V):

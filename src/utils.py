@@ -10,7 +10,7 @@ GRAY = 128
 CELL_SIZE = 20
 
 
-def from_pattern_to_image(pattern: list[list[bool]]) -> np.ndarray:
+def from_pattern_matrix_to_image(pattern: list[list[bool]]) -> np.ndarray:
     nb_rows: int = len(pattern)
     nb_cols: int = len(pattern[0])
     height: int = nb_rows * CELL_SIZE
@@ -76,7 +76,7 @@ def load_pattern_from_file(filename: str) -> Pattern:
     pattern_name: str = pattern_data["name"]
     pattern_cells: list[list[bool]] = pattern_data["pattern"]["cells"]
 
-    pattern_image: np.ndarray = from_pattern_to_image(pattern_cells)
+    pattern_image: np.ndarray = from_pattern_matrix_to_image(pattern_cells)
 
     pattern: Pattern = Pattern(
         name=pattern_name,

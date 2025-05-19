@@ -56,7 +56,6 @@ class Controller(QObject):
     def toggle_cell_alive(self, row: int, col: int):
         self.grid[row, col] = not self.grid[row, col]
 
-    # TODO: Improve the rules selection
     def start_simulation(self, rules: str, speed: int, iterations: int):
         self.start_simulation_signal.emit()
         self.toggle_cells_interaction_signal.emit()
@@ -126,6 +125,18 @@ class Controller(QObject):
             "- Mathusalems: small starting patterns that take a very large number of generations to stabilize.\n"
             "\n"
             "You can add custom patterns by clicking the 'Add' button in the Customs tab."
+        )
+        help_dialog.setIcon(QMessageBox.Information)
+        help_dialog.setStandardButtons(QMessageBox.Ok)
+        help_dialog.setModal(True)
+        help_dialog.exec_()
+
+    def show_iterations_help(self):
+        help_dialog = QMessageBox()
+        help_dialog.setWindowTitle("Iterations help")
+        help_dialog.setText(
+            "The number of iterations is the number of generations the simulation will run before stopping.\n"
+            "If you set it to 0, the simulation will run indefinitely until you pause it."
         )
         help_dialog.setIcon(QMessageBox.Information)
         help_dialog.setStandardButtons(QMessageBox.Ok)

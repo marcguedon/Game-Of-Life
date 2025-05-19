@@ -30,18 +30,23 @@ class AddPatternGraphicsScene(QGraphicsScene):
                 item.set_alive(False)
 
     def mousePressEvent(self, event: QMouseEvent):
+        pos = event.scenePos()
+        item = self.itemAt(pos, self.views()[0].transform())
+
+        if not isinstance(item, Cell):
+            return
+
         # Enable cell toggling on mouse press
         if self.cells_interaction_enabled:
-            pos = event.scenePos()
-            item = self.itemAt(pos, self.views()[0].transform())
+            if event.button() == Qt.LeftButton:
+                self._mouse_dragging = True
+                self._visited_cells = set()
+                self._visited_cells.add(item)
+                self._drag_initial_state = not item.is_alive()
+                item.set_alive(self._drag_initial_state)
 
-            if isinstance(item, Cell):
-                if event.button() == Qt.LeftButton:
-                    self._mouse_dragging = True
-                    self._visited_cells = set()
-                    self._visited_cells.add(item)
-                    self._drag_initial_state = not item.is_alive()
-                    item.set_alive(self._drag_initial_state)
+        else:
+            super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event: QMouseEvent):
         pos = event.scenePos()
@@ -56,9 +61,15 @@ class AddPatternGraphicsScene(QGraphicsScene):
                 self._visited_cells.add(item)
                 item.set_alive(self._drag_initial_state)
 
+        else:
+            super().mouseMoveEvent(event)
+
     def mouseReleaseEvent(self, event: QMouseEvent):
         # Disable cell toggling when the mouse is released
         if event.button() == Qt.LeftButton:
             self._mouse_dragging = False
             self._visited_cells.clear()
             self._drag_initial_state = None
+
+        else:
+            super().mouseReleaseEvent(event)

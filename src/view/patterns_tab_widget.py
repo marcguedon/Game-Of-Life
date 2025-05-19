@@ -22,13 +22,18 @@ class PatternsTabWidget(QTabWidget):
         )
         self.controller.add_custom_pattern_signal.connect(self.add_custom_pattern)
 
-        patterns_dir = os.path.join(
+        self.create_ui()
+
+    def create_ui(self):
+        patterns_dir: str = os.path.join(
             os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "patterns"
         )
 
-        patterns_types = [patterns_type for patterns_type in os.listdir(patterns_dir)]
+        patterns_types: list[str] = [
+            patterns_type for patterns_type in os.listdir(patterns_dir)
+        ]
 
-        for patterns_type in patterns_types:
+        for patterns_type in sorted(patterns_types, key=str.lower):
             patterns_type_tab: PatternsTypeTab = PatternsTypeTab()
             patterns_type_tab.setObjectName(patterns_type)
             self.addTab(patterns_type_tab, patterns_type.capitalize())
@@ -56,14 +61,14 @@ class PatternsTabWidget(QTabWidget):
 
     def toggle_buttons(self, enabled: bool):
         for i in range(self.count()):
-            item = self.widget(i)
+            item: PatternsTypeTab = self.widget(i)
 
             if item is not None:
                 item.toggle_buttons(enabled)
 
     def add_custom_pattern(self, pattern: Pattern):
         for i in range(self.count()):
-            tab = self.widget(i)
+            tab: PatternsTypeTab = self.widget(i)
 
             if tab.objectName().lower() == "customs":
                 pattern_button = PatternButton(pattern)
