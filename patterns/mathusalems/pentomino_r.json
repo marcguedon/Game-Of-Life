@@ -1,0 +1,12 @@
+{
+    "name": "Pentomino R",
+    "pattern": {
+        "width": 3,
+        "height": 3,
+        "cells": [
+            [false, true, false],
+            [false, true, true],
+            [true, true, false]
+        ]
+    }
+}

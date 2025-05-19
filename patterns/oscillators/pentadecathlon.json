@@ -1,0 +1,19 @@
+{
+    "name": "Penta-decathlon",
+    "pattern": {
+        "width": 9,
+        "height": 10,
+        "cells": [
+            [false, false, false, true, true, true, false, false, false],
+            [false, false, true, false, false, false, true, false, false],
+            [false, true, false, false, false, false, false, true, false],
+            [false, false, false, false, false, false, false, false, false],
+            [true, false, false, false, false, false, false, false, true],
+            [true, false, false, false, false, false, false, false, true],
+            [false, false, false, false, false, false, false, false, false],
+            [false, true, false, false, false, false, false, true, false],
+            [false, false, true, false, false, false, true, false, false],
+            [false, false, false, true, true, true, false, false, false]
+        ]
+    }
+}

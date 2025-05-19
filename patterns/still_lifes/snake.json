@@ -1,0 +1,11 @@
+{
+    "name": "Snake",
+    "pattern": {
+        "width": 4,
+        "height": 2,
+        "cells": [
+            [true, true, false, true],
+            [true, false, true, true]
+        ]
+    }
+}

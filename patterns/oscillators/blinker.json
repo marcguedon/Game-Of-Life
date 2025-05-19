@@ -1,0 +1,12 @@
+{
+    "name": "Blinker",
+    "pattern": {
+        "width": 1,
+        "height": 3,
+        "cells": [
+            [true],
+            [true],
+            [true]
+        ]
+    }
+}

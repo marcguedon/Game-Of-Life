@@ -1,0 +1,12 @@
+{
+    "name": "Boat",
+    "pattern": {
+        "width": 3,
+        "height": 3,
+        "cells": [
+            [true, true, false],
+            [true, false, true],
+            [false, true, false]
+        ]
+    }
+}

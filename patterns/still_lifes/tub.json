@@ -1,0 +1,12 @@
+{
+    "name": "Tub",
+    "pattern": {
+        "width": 3,
+        "height": 3,
+        "cells": [
+            [false, true, false],
+            [true, false, true],
+            [false, true, false]
+        ]
+    }
+}

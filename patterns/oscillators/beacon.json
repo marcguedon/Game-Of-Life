@@ -1,0 +1,13 @@
+{
+    "name": "Beacon",
+    "pattern": {
+        "width": 4,
+        "height": 4,
+        "cells": [
+            [true, true, false, false],
+            [true, true, false, false],
+            [false, false, true, true],
+            [false, false, true, true]
+        ]
+    }
+}

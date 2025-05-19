@@ -1,0 +1,12 @@
+{
+    "name": "Glider",
+    "pattern": {
+        "width": 3,
+        "height": 3,
+        "cells": [
+            [false, false, true],
+            [true, false, true],
+            [false, true, true]
+        ]
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "name": "Fishhook",
+    "pattern": {
+        "width": 4,
+        "height": 4,
+        "cells": [
+            [true, true, false, false],
+            [false, true, false, false],
+            [false, true, false, true],
+            [false, false, true, true]
+        ]
+    }
+}

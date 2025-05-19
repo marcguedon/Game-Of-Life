@@ -1,0 +1,12 @@
+{
+    "name": "Beehive",
+    "pattern": {
+        "width": 4,
+        "height": 3,
+        "cells": [
+            [false, true, true, false],
+            [true, false, false, true],
+            [false, true, true, false]
+        ]
+    }
+}

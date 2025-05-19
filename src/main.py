@@ -1,7 +1,7 @@
 import sys
 import os
 from PyQt5.QtWidgets import QApplication
-from main_window import MainWindow
+from view.main_window import MainWindow
 
 os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = "/usr/lib/qt/plugins"
 

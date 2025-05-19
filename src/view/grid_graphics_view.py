@@ -1,18 +1,25 @@
 from PyQt5.QtWidgets import QGraphicsView
 from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtGui import QMouseEvent
-from controller import Controller
-from grid_graphics_scene import GridGraphicsScene
+from PyQt5.QtGui import QMouseEvent, QKeyEvent
+from controller.controller import Controller
+from view.grid_graphics_scene import GridGraphicsScene
 
 
-class GraphicsView(QGraphicsView):
+class GridGraphicsView(QGraphicsView):
     def __init__(self):
         super().__init__()
 
         self.controller: Controller = Controller()
-        self.controller.update_scene_signal.connect(self.update_scene)
+        self.controller.preview_pattern_signal.connect(
+            lambda pattern: self.enable_preview_pattern()
+        )
+        self.controller.stop_preview_pattern_signal.connect(
+            self.disable_preview_pattern
+        )
 
-        self.scene: GridGraphicsScene = self.controller.grid_graphics_scene
+        self.scene: GridGraphicsScene = GridGraphicsScene(
+            self.controller.NB_ROWS, self.controller.NB_COLS
+        )
         self.setScene(self.scene)
 
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
@@ -24,12 +31,16 @@ class GraphicsView(QGraphicsView):
         self.max_scale: float = 5.0
 
         self._panning: bool = False
-        self._pan_start = QPoint()
+        self._pan_start: QPoint = QPoint()
 
-    def update_scene(self, new_scene: GridGraphicsScene):
-        self.scene.clear()
-        self.scene = new_scene
-        self.setScene(self.scene)
+        self._preview_enabled: bool = False
+
+    def enable_preview_pattern(self):
+        self.setFocus()
+        self._preview_enabled = True
+
+    def disable_preview_pattern(self):
+        self._preview_enabled = False
 
     def wheelEvent(self, event: QMouseEvent):
         if event.angleDelta().y() > 0 and self.current_scale < self.max_scale:
@@ -43,16 +54,24 @@ class GraphicsView(QGraphicsView):
     def mousePressEvent(self, event: QMouseEvent):
         if event.button() == Qt.MiddleButton:
             self._panning = True
+            self.setFocus()
             self.setCursor(Qt.ClosedHandCursor)
             self._pan_start = event.pos()
 
         else:
+            if not self._panning:
+                self.setCursor(Qt.CrossCursor)
+
             super().mousePressEvent(event)
 
+    # TODO: Disabling preview pattern placement while dragging
     def mouseMoveEvent(self, event: QMouseEvent):
         if self._panning:
+            self.setFocus()
+            self.setCursor(Qt.ClosedHandCursor)
             delta = self._pan_start - event.pos()
             self._pan_start = event.pos()
+
             self.horizontalScrollBar().setValue(
                 self.horizontalScrollBar().value() + delta.x()
             )
@@ -61,6 +80,13 @@ class GraphicsView(QGraphicsView):
             )
 
         else:
+            item = self.itemAt(event.pos())
+            if item is not None:
+                self.setCursor(Qt.CrossCursor)
+
+            else:
+                self.setCursor(Qt.ArrowCursor)
+
             super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event: QMouseEvent):
@@ -71,5 +97,8 @@ class GraphicsView(QGraphicsView):
         else:
             super().mouseReleaseEvent(event)
 
-    def mouseDoubleClickEvent(self, event: QMouseEvent):
+    def mouseDoubleClickEvent(self, _: QMouseEvent):
         pass
+
+    def keyPressEvent(self, event: QKeyEvent):
+        self.scene.keyPressEvent(event)
